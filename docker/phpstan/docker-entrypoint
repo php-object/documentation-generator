@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+set -eu
+
+/root/.composer/vendor/bin/phpstan --memory-limit=512M --ansi analyse --configuration=/phpstan/phpstan.neon /app

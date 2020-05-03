@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -u
+
+readonly rootDirectory=$(realpath $(dirname $(realpath $0))/..)
+outputRedirect="/tmp/php-object.validate.log"
+
+function validateExitCode() {
+    local exitCode="${1}"
+
+    if [ ${exitCode} -ge 1 ]; then
+        if [ -f "${outputRedirect}" ]; then
+            cat "${outputRedirect}"
+        fi
+        echo -e "\e[41m Error \e[0m"
+    fi
+
+    removeOutputRedirectFile
+}
+
+function removeOutputRedirectFile() {
+    if [ -f "${outputRedirect}" ]; then
+        rm "${outputRedirect}"
+    fi
+}
+
+verbosityLevel=0
+for param in "$@"; do
+    if [ "$param" == "-v" ]; then
+        verbosityLevel=1
+    elif [ "$param" == "-vv" ]; then
+        verbosityLevel=2
+    elif [ "$param" == "-vvv" ]; then
+        verbosityLevel=3
+    fi
+done
+
+if [ ${verbosityLevel} -ge 1 ]; then
+    outputRedirect="/proc/self/fd/0"
+fi
+
+echo -e "\e[32mphpcs\e[0m."
+${rootDirectory}/bin/ci/phpcs > ${outputRedirect} 2>&1
+validateExitCode "$?"
+
+echo -e "\e[32mphpstan\e[0m."
+${rootDirectory}/bin/ci/phpstan > ${outputRedirect} 2>&1
+validateExitCode "$?"
+
+echo -e "\e[32mcomposerRequireChecker\e[0m."
+${rootDirectory}/bin/ci/composerRequireChecker > ${outputRedirect} 2>&1
+validateExitCode "$?"
