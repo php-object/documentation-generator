@@ -1,0 +1,11 @@
+parameters:
+    level: 8
+    excludes_analyse:
+        - /app/vendor
+        - /app/var
+        - /app/config/bootstrap.php
+        - /app/phpcs.bootstrap.php
+includes:
+    - phar://phpstan.phar/conf/bleedingEdge.neon
+    - /root/.composer/vendor/phpstan/phpstan-strict-rules/rules.neon
+    - /root/.composer/vendor/phpstan/phpstan-symfony/extension.neon

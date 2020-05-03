@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+set -eu
+
+readonly rootDirectory=$(realpath $(dirname $(realpath $0))/../..)
+
+if [ $(which docker || false) ]; then
+    docker run \
+        --rm \
+        -it \
+        -v ${rootDirectory}:/app \
+        -w /app \
+        --entrypoint=/app/bin/ci/phpstan \
+        phpobject/documentation-generator:phpstan
+else
+    docker-entrypoint
+fi

@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+set -eu
+
+if [ $(which docker || false) ]; then
+    docker \
+        run \
+        -it \
+        --rm \
+        -v $(pwd):/app:ro \
+        --entrypoint /app/bin/ci/composerRequireChecker \
+        steevanb/composer-require-checker:2.1.0
+else
+    composer-require-checker
+fi

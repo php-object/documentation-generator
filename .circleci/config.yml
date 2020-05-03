@@ -1,0 +1,66 @@
+version: '2.1'
+
+jobs:
+    composer:
+        docker:
+            - image: composer
+        working_directory: /app
+        steps:
+            - checkout
+            - restore_cache:
+                key: vendor-{{ checksum "composer.json" }}-{{ checksum "composer.lock" }}-{{ checksum "docker/phpstan/composer.json" }}
+            - run:
+                name: Install Composer dependencies
+                command:
+                    composer install --no-dev --ignore-platform-reqs --no-interaction
+            - save_cache:
+                key: vendor-{{ checksum "composer.json" }}-{{ checksum "composer.lock" }}-{{ checksum "docker/phpstan/composer.json" }}
+                paths:
+                    - vendor
+
+    composer-require-checker:
+        docker:
+            - image: steevanb/composer-require-checker:2.1.0
+        working_directory: /app
+        steps:
+            - checkout
+            - restore_cache:
+                key: vendor-{{ checksum "composer.json" }}-{{ checksum "composer.lock" }}-{{ checksum "docker/phpstan/composer.json" }}
+            - run:
+                name: composer-require-checker
+                command: bin/ci/composerRequireChecker
+
+    phpcs:
+        docker:
+            - image: steevanb/php-code-sniffs:4.0.2
+        working_directory: /app
+        steps:
+            - checkout
+            - run:
+                name: phpcs
+                command: bin/ci/phpcs
+
+    phpstan:
+        docker:
+            - image: phpobject/documentation-generator:phpstan
+        working_directory: /app
+        steps:
+            - checkout
+            - restore_cache:
+                key: vendor-{{ checksum "composer.json" }}-{{ checksum "composer.lock" }}-{{ checksum "docker/phpstan/composer.json" }}
+            - run:
+                name: phpstan
+                command: bin/ci/phpstan
+
+workflows:
+    version: '2.1'
+    CI:
+        jobs:
+            - phpcs
+            - composer
+            - composer-require-checker:
+                requires:
+                    - composer
+            - phpstan:
+                requires:
+                    - composer

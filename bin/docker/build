@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+set -eu
+
+readonly rootDirectory=$(realpath $(dirname $(realpath $0))/../..)
+
+readonly dockerImagePhpstan="phpobject/documentation-generator:phpstan"
+
+outputRedirect="/tmp/php-object.docker.build.log"
+
+function onError() {
+    if [ -f "${outputRedirect}" ]; then
+        cat "${outputRedirect}"
+    fi
+
+    removeOutputRedirectFile
+    echo -e "\e[41m Error while building Docker images. \e[0m"
+}
+
+
+function removeOutputRedirectFile() {
+    if [ -f "${outputRedirect}" ]; then
+        rm "${outputRedirect}"
+    fi
+}
+
+trap onError ERR
+
+function buildImage() {
+    trap onError ERR
+
+    local type="${1}"
+    local dockerImageTag="${2}"
+
+    echo -e "Build Docker image \e[32m${dockerImageTag}\e[0m."
+    docker \
+        build \
+        --force-rm \
+        --tag ${dockerImageTag} \
+        --file ${rootDirectory}/docker/${type}/Dockerfile \
+        ${dockerQuietParam} \
+        ${dockerNoCacheParam} \
+        . \
+        > ${outputRedirect} 2>&1
+}
+
+function pushDockerImage() {
+    trap onError ERR
+
+    local tag=${1}
+
+    echo -e "Push Docker image \e[32m${tag}\e[0m to \e[32mdockerhub\e[0m."
+    docker push "${tag}" > ${outputRedirect} 2>&1
+}
+
+removeOutputRedirectFile
+
+verbosityLevel=0
+verboseParam=""
+dockerNoCacheParam=""
+pushDockerImages=false
+for param in "$@"; do
+    if [ "$param" == "-v" ]; then
+        verbosityLevel=1
+    elif [ "$param" == "-vv" ]; then
+        verbosityLevel=2
+    elif [ "$param" == "-vvv" ]; then
+        verbosityLevel=3
+    elif [ "$param" == "--refresh" ]; then
+        dockerNoCacheParam="--no-cache --pull"
+    elif [ "$param" == "--push" ]; then
+        pushDockerImages=true
+    fi
+done
+
+if [ ${verbosityLevel} -ge 1 ]; then
+    outputRedirect="/proc/self/fd/0"
+    dockerQuietParam=""
+else
+    dockerQuietParam="--quiet"
+fi
+
+buildImage "phpstan" "${dockerImagePhpstan}"
+
+if [ ${pushDockerImages} == true ]; then
+    echo -e "Login to \e[32mdockerhub\e[0m."
+    docker logout > ${outputRedirect} 2>&1
+    docker login --username=phpobject
+
+    pushDockerImage ${dockerImagePhpstan}
+fi
+
+removeOutputRedirectFile
