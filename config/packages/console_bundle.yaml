@@ -1,0 +1,19 @@
+console:
+    excluded:
+        - "assets:install"
+        - "debug:router"
+        - "router:match"
+        - "secrets:decrypt-to-local"
+        - "secrets:encrypt-from-local"
+        - "secrets:generate-keys"
+        - "secrets:list"
+        - "secrets:remove"
+        - "secrets:set"
+    list:
+        symfonyVersionVerbosityLevel: 1
+        usageVerbosityLevel: 1
+        optionsVerbosityLevel: 1
+        availableCommandsVerbosityLevel: 0
+        output:
+            highlights:
+                - "cache:clear"

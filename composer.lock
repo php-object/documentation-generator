@@ -4,8 +4,40 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5bbe846725617f65540969fe80b255a7",
+    "content-hash": "6b9fa8bf1063e84a1f698a5c3c78df23",
     "packages": [
+        {
+            "name": "huttopia/console-bundle",
+            "version": "1.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Huttopia/console-bundle.git",
+                "reference": "14db1cbffcd1b5355886d99f870c4649683cea53"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Huttopia/console-bundle/zipball/14db1cbffcd1b5355886d99f870c4649683cea53",
+                "reference": "14db1cbffcd1b5355886d99f870c4649683cea53",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.2",
+                "symfony/console": "^2.3|^3.0|^4.0|^5.0",
+                "symfony/framework-bundle": "^2.3|^3.0|^4.0|^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Huttopia\\ConsoleBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Add some nice features to symfony/console",
+            "time": "2020-04-03T08:58:23+00:00"
+        },
         {
             "name": "psr/cache",
             "version": "1.0.1",

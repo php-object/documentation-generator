@@ -1,7 +1,10 @@
 <?php
 
+use Huttopia\ConsoleBundle\{
+    Application,
+    CommandOption\AllCommandsOption
+};
 use PhpObject\DocumentationGenerator\Kernel;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\ErrorHandler\Debug;
 
@@ -17,6 +20,7 @@ if (!class_exists(Application::class)) {
     throw new LogicException('You need to add "symfony/framework-bundle" as a Composer dependency.');
 }
 
+$allCommands = AllCommandsOption::parseAllCommandsOption($argv);
 $input = new ArgvInput();
 if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
     putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
@@ -37,5 +41,6 @@ if ($_SERVER['APP_DEBUG']) {
 }
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-$application = new Application($kernel);
-$application->run($input);
+(new Application($kernel))
+    ->setAllCommands($allCommands)
+    ->run($input);
