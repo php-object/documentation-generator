@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+set -eu
+
+docker run -it --user $(id -u):$(id -g) -v $PWD:/app composer:1.10 $@
